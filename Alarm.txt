@@ -1,0 +1,229 @@
+XML:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <EditText
+        android:id="@+id/minutes"
+        android:layout_width="60dp"
+        android:layout_height="67dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.384" />
+
+    <EditText
+        android:id="@+id/hours"
+        android:layout_width="60dp"
+        android:layout_height="67dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/minutes"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.384" />
+
+    <EditText
+        android:id="@+id/seconds"
+        android:layout_width="60dp"
+        android:layout_height="67dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/minutes"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.384" />
+
+    <Button
+        android:id="@+id/start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.099" />
+
+    <Button
+        android:id="@+id/end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="End"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.235" />
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="292dp"
+        android:layout_height="59dp"
+        android:hint="message place"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.566" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+Manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.alarmclock">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Alarmclock"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+
+Java:
+package com.example.alarmclock;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.media.MediaPlayer;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class MainActivity extends AppCompatActivity {
+
+    private boolean enableCounter;
+    private boolean isValidCounter(TextView hoursText, TextView minutesText, TextView secondsText) {
+        int hours = Integer.parseInt(hoursText.getText().toString());
+        int minutes = Integer.parseInt(minutesText.getText().toString());
+        int seconds = Integer.parseInt(secondsText.getText().toString());
+
+        return 0 <= hours && 0 <= minutes && minutes < 60 && 0 <= seconds && seconds < 60;
+    }
+
+    private int decrementCounter(TextView hoursText, TextView minutesText, TextView secondsText) {
+        int hours = Integer.parseInt(hoursText.getText().toString());
+        int minutes = Integer.parseInt(minutesText.getText().toString());
+        int seconds = Integer.parseInt(secondsText.getText().toString());
+
+        if (hours == 0 && minutes == 0 && seconds == 0) {
+            return 1;
+        }
+
+        if (seconds == 0) {
+            seconds = 59;
+            if (minutes == 0) {
+                minutes = 59;
+                hours -= 1;
+            } else {
+                minutes -= 1;
+            }
+        } else {
+            seconds -= 1;
+        }
+
+        hoursText.setText(Integer.toString(hours));
+        minutesText.setText(Integer.toString(minutes));
+        secondsText.setText(Integer.toString(seconds));
+        return 0;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        enableCounter = false;
+        final Button start = findViewById(R.id.start);
+        final Button end = findViewById(R.id.end);
+        final TextView hours = findViewById(R.id.hours);
+        final TextView minutes = findViewById(R.id.minutes);
+        final TextView seconds = findViewById(R.id.seconds);
+        final TextView message = findViewById(R.id.message);
+        MediaPlayer m=MediaPlayer.create(this,R.raw.music);
+
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isValidCounter(hours, minutes, seconds)) {
+                    message.setText("Counter has started");
+                    enableCounter = true;
+
+                } else {
+                    message.setText("Invalid counter. Try again");
+                }
+            }
+        });
+
+        end.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                message.setText("Counter interrupted.");
+                enableCounter = false;
+                hours.setText("0");
+                minutes.setText("0");
+                seconds.setText("0");
+            }
+        });
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (!enableCounter) {
+                    return;
+                }
+                if (decrementCounter(hours, minutes, seconds) == 1) {
+                    message.setText("Counter has finished counting!");
+                    enableCounter = false;
+                }
+            }
+        }, 0, 1000);
+    }
+}

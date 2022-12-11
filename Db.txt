@@ -1,0 +1,619 @@
+Manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.ex5">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Ex5">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Insert"
+            android:exported="true"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".Delete"
+            android:exported="true"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".Update"
+            android:exported="true"
+            android:parentActivityName=".MainActivity">
+        </activity>
+    </application>
+
+</manifest>
+
+
+XML:
+activity_main:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/insert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="insert_row"
+        android:text="Insert"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.254" />
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="delete_row"
+        android:text="Delete"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.37" />
+
+    <Button
+        android:id="@+id/update_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="update_row"
+        android:text="Update"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+delete.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter Name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.118"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.091" />
+
+    <EditText
+        android:id="@+id/name_to_del"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.636"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.078" />
+
+    <Button
+        android:id="@+id/delete_b"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete Record"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.437"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.278" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+insert.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="45dp"
+        android:layout_height="16dp"
+        android:text="Name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.043"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.037" />
+
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="220dp"
+        android:layout_height="44dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.602"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.023" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Address"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.044"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.127" />
+
+    <EditText
+        android:id="@+id/address"
+        android:layout_width="218dp"
+        android:layout_height="42dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.595"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.112" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.043"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.216" />
+
+    <EditText
+        android:id="@+id/phone"
+        android:layout_width="217dp"
+        android:layout_height="51dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.582"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.201" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.042"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.311" />
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="215dp"
+        android:layout_height="47dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.576"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.305" />
+
+    <Button
+        android:id="@+id/insert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Insert"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.408" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+update.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.116"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.064" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter new email"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.128"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.154" />
+
+    <EditText
+        android:id="@+id/name_to_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.786"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.046" />
+
+    <EditText
+        android:id="@+id/updated_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.815"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.139" />
+
+    <Button
+        android:id="@+id/update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update Record"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.253" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+Java:
+dbHandler:
+package com.example.ex5;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class DBHandler extends SQLiteOpenHelper {
+    private static final String DB_NAME = "infodb";
+    private static final int DB_VERSION = 1;
+    private static final String TABLE_NAME = "personalinfo";
+    private static final String ID_COL = "ID";
+    private static final String NAME_COL = "Name";
+    private static final String ADD_COL = "Address";
+    private static final String PHONE_COL = "Phone";
+    private static final String EMAIL_COL = "Email";
+
+    // creating a constructor for our database handler.
+    public DBHandler(Context context) {
+        super(context, DB_NAME, null, DB_VERSION);
+    }
+
+    // below method is for creating a database by running a sqlite query
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String query = "CREATE TABLE " + TABLE_NAME + " ("
+                + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME_COL + " TEXT,"
+                + ADD_COL + " TEXT,"
+                + PHONE_COL + " TEXT,"
+                + EMAIL_COL + " TEXT)";
+
+        // at last we are calling a exec sql
+        // method to execute above sql query
+        db.execSQL(query);
+    }
+
+    // this method is use to add new course to our sqlite database.
+    public void addNewRow(String Name, String Address, String Phone, String Email) {
+
+        // on below line we are creating a variable for
+        // our sqlite database and calling writable method
+        // as we are writing data in our database.
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // on below line we are creating a
+        // variable for content values.
+        ContentValues values = new ContentValues();
+
+        // on below line we are passing all values
+        // along with its key and value pair.
+        values.put(NAME_COL, Name);
+        values.put(ADD_COL, Address);
+        values.put(PHONE_COL, Phone);
+        values.put(EMAIL_COL, Email);
+
+        // after adding all values we are passing
+        // content values to our table.
+        db.insert(TABLE_NAME, null, values);
+
+        // at last we are closing our
+        // database after adding database.
+        db.close();
+    }
+
+    public int deleteRow(String name){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection =NAME_COL + " LIKE ?";
+        String[] selectionArgs= {name};
+        int deletedRows = db.delete(TABLE_NAME, selection, selectionArgs);
+        return deletedRows;
+    }
+
+    public int updateRow(String name,String email){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection =NAME_COL + " LIKE ?";
+        ContentValues v = new ContentValues();
+        v.put("Email",email);
+        String[] selectionArgs= {name};
+        int c=db.update(TABLE_NAME,v,selection,selectionArgs);
+        return c;
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // this method is called to check if the table exists already.
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+    }
+}
+
+Delete.java
+package com.example.ex5;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+public class Delete extends AppCompatActivity{
+
+    private EditText Name;
+    private Button deletebtn;
+    private DBHandler dbHandler;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.delete);
+
+        Name=findViewById(R.id.name_to_del);
+        deletebtn=findViewById(R.id.delete_b);
+        dbHandler = new DBHandler(Delete.this);
+
+        deletebtn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String name = Name.getText().toString();
+                if(name.isEmpty()){
+                    Toast.makeText(Delete.this, "Please enter all the data..", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                int c=dbHandler.deleteRow(name);
+                if(c>0){
+                    Toast.makeText(Delete.this, "Record has been deleted.", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(Delete.this, "No record found.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+}
+
+
+Insert.java
+package com.example.ex5;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+public class Insert extends AppCompatActivity {
+    private EditText Name, Address, Phone, Email;
+    private Button insertbtn;
+    private DBHandler dbHandler;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.insert);
+
+        Name = findViewById(R.id.name);
+        Address = findViewById(R.id.address);
+        Phone = findViewById(R.id.phone);
+        Email = findViewById(R.id.email);
+        insertbtn = findViewById(R.id.insert);
+
+        // creating a new dbhandler class
+        // and passing our context to it.
+        dbHandler = new DBHandler(Insert.this);
+
+        // below line is to add on click listener for our add course button.
+        insertbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // below line is to get data from all edit text fields.
+                String pName = Name.getText().toString();
+                String pAddress = Address.getText().toString();
+                String pPhone = Phone.getText().toString();
+                String pEmail = Email.getText().toString();
+
+                // validating if the text fields are empty or not.
+                if (pName.isEmpty() && pAddress.isEmpty() && pPhone.isEmpty() && pEmail.isEmpty()) {
+                    Toast.makeText(Insert.this, "Please enter all the data..", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // on below line we are calling a method to add new
+                // course to sqlite data and pass all our values to it.
+                dbHandler.addNewRow(pName, pAddress, pPhone, pEmail);
+
+                // after adding the data we are displaying a toast message.
+                Toast.makeText(Insert.this, "Info has been added.", Toast.LENGTH_SHORT).show();
+                Name.setText("");
+                Address.setText("");
+                Phone.setText("");
+                Email.setText("");
+            }
+        });
+
+    }
+
+}
+
+
+Main_activity:
+package com.example.ex5;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity {
+
+    //private Button insertbtn;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        //insertbtn = findViewById(R.id.insert);
+    }
+    public void insert_row(View view){
+        Intent intent = new Intent(this, Insert.class);
+        startActivity(intent);
+    }
+
+    public void delete_row(View view){
+        Intent intent = new Intent(this, Delete.class);
+        startActivity(intent);
+    }
+
+    public void update_row(View view){
+        Intent intent = new Intent(this, Update.class);
+        startActivity(intent);
+    }
+}
+
+
+Update:
+package com.example.ex5;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class Update extends AppCompatActivity{
+    private EditText Name;
+    private EditText Email;
+    private Button updatebtn;
+    private DBHandler dbHandler;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.update);
+
+        Name=findViewById(R.id.name_to_update);
+        Email=findViewById(R.id.updated_email);
+        updatebtn=findViewById(R.id.update);
+        dbHandler = new DBHandler(Update.this);
+
+        updatebtn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String name = Name.getText().toString();
+                String email= Email.getText().toString();
+                if(name.isEmpty() || email.isEmpty()){
+                    Toast.makeText(Update.this, "Please enter all the data..", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                int c=dbHandler.updateRow(name,email);
+                if(c>0){
+                    Toast.makeText(Update.this, "Record has been updated.", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(Update.this, "No record found.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+}

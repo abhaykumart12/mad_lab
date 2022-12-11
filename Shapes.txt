@@ -1,0 +1,319 @@
+manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.ex4a">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Cars">
+        <activity android:name="com.example.ex4a.ShapesActivity"
+            android:parentActivityName="com.example.ex4a.MainActivity">
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.ex4a.MainActivity" />
+        </activity>
+        <activity android:exported="true" android:name="com.example.ex4a.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+Java:
+Main.java:
+package com.example.ex4a;
+//import com.example.R;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.ImageView;
+
+public class MainActivity extends AppCompatActivity{
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Button bt_zoom=findViewById(R.id.bt_zoom);
+        //Button bt_fade=findViewById(R.id.bt_fade);
+        Button bt_rotate=findViewById(R.id.bt_rotate);
+        Button bt_down=findViewById(R.id.bt_down);
+        Button bt_up=findViewById(R.id.bt_up);
+        Button bt_forward=findViewById(R.id.bt_forward);
+        Button bt_backward=findViewById(R.id.bt_backward);
+        final ImageView iv_animate=findViewById(R.id.iv_animate);
+
+        bt_zoom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                iv_animate.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.zoom_in));
+            }
+        });
+        /*
+        bt_fade.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                iv_animate.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in));
+            }
+        });*/
+        bt_rotate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                iv_animate.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_in));
+            }
+        });
+        bt_up.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_animate.animate().translationYBy(-300f).setDuration(600);
+            }
+        });
+        bt_down.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_animate.animate().translationYBy(300f).setDuration(600);
+            }
+        });
+        bt_forward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_animate.animate().translationXBy(300f).setDuration(600);
+            }
+        });
+        bt_backward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_animate.animate().translationXBy(-300f).setDuration(600);
+            }
+        });
+
+    }
+    public void nextPage(View view) {
+        Intent intent = new Intent(this, ShapesActivity.class);
+        startActivity(intent);
+
+    }
+
+}
+
+Shapes.java:
+package com.example.ex4a;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.widget.ImageView;
+
+public class ShapesActivity extends AppCompatActivity {
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_shapes);
+
+        Intent intent = getIntent();
+
+        Bitmap bg = Bitmap.createBitmap(720, 1280, Bitmap.Config.ARGB_8888);
+        ImageView i = (ImageView) findViewById(R.id.imageView);
+
+        i.setBackgroundDrawable(new BitmapDrawable(bg));
+        Canvas canvas = new Canvas(bg);
+        Paint paint = new Paint();
+        paint.setColor(Color.CYAN);
+        paint.setTextSize(50);
+
+        //To draw a Rectangle
+        canvas.drawText("Rectangle", 420, 150, paint);
+        canvas.drawRect(400, 200, 650, 700, paint);
+
+        //To draw a Circle
+        canvas.drawText("Circle", 120, 150, paint);
+        canvas.drawCircle(200, 350, 150, paint);
+
+        //To draw an arc
+        canvas.drawText("Arc", 120, 800, paint);
+        canvas.drawArc(50, 850, 350, 1150, 135, 120, true, paint);
+
+        //To draw a Line
+        canvas.drawText("Line", 480, 800, paint);
+        canvas.drawLine(520, 850, 520, 1150, paint);
+    }
+}
+
+XML:
+in anim
+rotate.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <rotate
+        android:fromDegrees="0"
+        android:toDegrees="360"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:duration="1000" />
+</set>
+
+zoom.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <scale xmlns:android="http://schemas.android.com/apk/res/android"
+        android:fromXScale="0.5"
+        android:fromYScale="0.5"
+        android:toXScale="1.0"
+        android:toYScale="1.0"
+        android:duration="3000"
+        android:pivotX="50%"
+        android:pivotY="50%"/>
+</set>
+
+in drawable put picture
+
+in layout:
+main.xml:
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <Button
+        android:id="@+id/bt_rotate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="278dp"
+        android:layout_marginLeft="278dp"
+        android:layout_marginTop="195dp"
+        android:text="Rotate" />
+
+    <Button
+        android:id="@+id/bt_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="127dp"
+        android:text="Down" />
+
+    <Button
+        android:id="@+id/bt_zoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="46dp"
+        android:layout_marginLeft="46dp"
+        android:layout_marginTop="200dp"
+        android:text="Zoom" />
+
+    <Button
+        android:id="@+id/bt_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_zoom"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-238dp"
+        android:layout_marginEnd="163dp"
+        android:layout_marginRight="163dp"
+        android:text="Up" />
+
+    <Button
+        android:id="@+id/bt_forward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_up"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="55dp"
+        android:layout_marginRight="55dp"
+        android:text="Forward" />
+
+    <Button
+        android:id="@+id/bt_backward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_up"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="10dp"
+        android:text="Backward" />
+
+    <ImageView
+        android:id="@+id/iv_animate"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@+id/bt_backward"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="214dp"
+        android:layout_marginRight="30dp"
+        android:background="@drawable/car" />
+    <Button
+        android:id="@+id/bt_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="69dp"
+        android:layout_marginRight="69dp"
+        android:layout_marginBottom="60dp"
+        android:onClick="nextPage"
+        android:text="Next" />
+
+</RelativeLayout>
+
+shapes.xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/imageView"/>
+</RelativeLayout>

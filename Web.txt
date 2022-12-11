@@ -1,0 +1,120 @@
+XML:
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <Button
+            android:id="@+id/loadWebPage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:background="#444"
+            android:text="Load Web Page"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/loadFromStaticHtml"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:background="#444"
+            android:text="Load Static HTML"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+    <WebView
+        android:id="@+id/simpleWebView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="20dp"
+        android:scrollbars="none" />
+</LinearLayout>
+
+
+
+Manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.sendsms">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Sendsms">
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+
+
+
+java:
+package com.example.sendsms;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    WebView simpleWebView;
+    Button loadWebPage, loadFromStaticHtml;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        // initiate buttons and a web view
+        loadFromStaticHtml = (Button) findViewById(R.id.loadFromStaticHtml);
+        loadFromStaticHtml.setOnClickListener(this);
+        loadWebPage = (Button) findViewById(R.id.loadWebPage);
+        loadWebPage.setOnClickListener(this);
+        simpleWebView = (WebView) findViewById(R.id.simpleWebView);
+    }
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.loadFromStaticHtml:
+                // define static html text
+                String customHtml = "<html><body><h1>Hello</h1>" + "<h3>Welcome to the <em>restaurant</em></h3>" + "<p><mark>Buy 1 get 1 free</mark></p>" +
+                "<p>List of beverages</p>" + "<p><ol><li><b>Tea</b></li><li><u>Coffee</u></li><li>Milk</li></ol></p>" + "<p><i>Have a good day</i></p>" + "<p><sup>Come</sup> back <sub>again</sub></p>" + "</body></html>";
+                simpleWebView.loadData(customHtml, "text/html", "UTF-8"); // load html string
+                break;
+            case R.id.loadWebPage:
+                //simpleWebView.setWebViewClient(new MyWebViewClient());
+                String url = "https://www.google.com";
+                simpleWebView.getSettings().setJavaScriptEnabled(true);
+                simpleWebView.loadUrl(url); // load a web page in a web view
+                break;
+        }
+    }
+    /*
+    private class MyWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(url);
+            return true;
+        }
+    }*/
+}
