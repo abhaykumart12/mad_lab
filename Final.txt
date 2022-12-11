@@ -1,0 +1,3216 @@
+Alarm:
+
+XML:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <EditText
+        android:id="@+id/minutes"
+        android:layout_width="60dp"
+        android:layout_height="67dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.384" />
+
+    <EditText
+        android:id="@+id/hours"
+        android:layout_width="60dp"
+        android:layout_height="67dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/minutes"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.384" />
+
+    <EditText
+        android:id="@+id/seconds"
+        android:layout_width="60dp"
+        android:layout_height="67dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/minutes"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.384" />
+
+    <Button
+        android:id="@+id/start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.099" />
+
+    <Button
+        android:id="@+id/end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="End"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.235" />
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="292dp"
+        android:layout_height="59dp"
+        android:hint="message place"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.566" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+Manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.alarmclock">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Alarmclock"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+
+Java:
+package com.example.alarmclock;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.media.MediaPlayer;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class MainActivity extends AppCompatActivity {
+
+    private boolean enableCounter;
+    private boolean isValidCounter(TextView hoursText, TextView minutesText, TextView secondsText) {
+        int hours = Integer.parseInt(hoursText.getText().toString());
+        int minutes = Integer.parseInt(minutesText.getText().toString());
+        int seconds = Integer.parseInt(secondsText.getText().toString());
+
+        return 0 <= hours && 0 <= minutes && minutes < 60 && 0 <= seconds && seconds < 60;
+    }
+
+    private int decrementCounter(TextView hoursText, TextView minutesText, TextView secondsText) {
+        int hours = Integer.parseInt(hoursText.getText().toString());
+        int minutes = Integer.parseInt(minutesText.getText().toString());
+        int seconds = Integer.parseInt(secondsText.getText().toString());
+
+        if (hours == 0 && minutes == 0 && seconds == 0) {
+            return 1;
+        }
+
+        if (seconds == 0) {
+            seconds = 59;
+            if (minutes == 0) {
+                minutes = 59;
+                hours -= 1;
+            } else {
+                minutes -= 1;
+            }
+        } else {
+            seconds -= 1;
+        }
+
+        hoursText.setText(Integer.toString(hours));
+        minutesText.setText(Integer.toString(minutes));
+        secondsText.setText(Integer.toString(seconds));
+        return 0;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        enableCounter = false;
+        final Button start = findViewById(R.id.start);
+        final Button end = findViewById(R.id.end);
+        final TextView hours = findViewById(R.id.hours);
+        final TextView minutes = findViewById(R.id.minutes);
+        final TextView seconds = findViewById(R.id.seconds);
+        final TextView message = findViewById(R.id.message);
+        MediaPlayer m=MediaPlayer.create(this,R.raw.music);
+
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isValidCounter(hours, minutes, seconds)) {
+                    message.setText("Counter has started");
+                    enableCounter = true;
+
+                } else {
+                    message.setText("Invalid counter. Try again");
+                }
+            }
+        });
+
+        end.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                message.setText("Counter interrupted.");
+                enableCounter = false;
+                hours.setText("0");
+                minutes.setText("0");
+                seconds.setText("0");
+            }
+        });
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (!enableCounter) {
+                    return;
+                }
+                if (decrementCounter(hours, minutes, seconds) == 1) {
+                    message.setText("Counter has finished counting!");
+                    enableCounter = false;
+                }
+            }
+        }, 0, 1000);
+    }
+}
+
+
+Calculator:
+java:
+package com.example.calculator;
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+public class MainActivity extends AppCompatActivity {
+    Button button0, button1, button2, button3, button4, button5, button6,
+            button7, button8, button9, buttonAdd, buttonSub, buttonDivision,
+            buttonMul, button10, buttonC, buttonEqual,buttonPer;
+    EditText textvaria;
+    float mValueOne, mValueTwo;
+    boolean operationAddition, mSubtract, operationMultiplication, operationDivision,
+            operationPercentage;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        button0 = (Button) findViewById(R.id.button0);
+        button1 = (Button) findViewById(R.id.button1);
+        button2 = (Button) findViewById(R.id.button2);
+        button3 = (Button) findViewById(R.id.button3);
+        button4 = (Button) findViewById(R.id.button4);
+        button5 = (Button) findViewById(R.id.button5);
+        button6 = (Button) findViewById(R.id.button6);
+        button7 = (Button) findViewById(R.id.button7);
+        button8 = (Button) findViewById(R.id.button8);
+        button9 = (Button) findViewById(R.id.button9);
+        button10 = (Button) findViewById(R.id.button10);
+        buttonAdd = (Button) findViewById(R.id.buttonadd);
+        buttonPer = (Button) findViewById(R.id.buttonper);
+        buttonSub = (Button) findViewById(R.id.buttonsub);
+        buttonMul = (Button) findViewById(R.id.buttonmul);
+        buttonDivision = (Button) findViewById(R.id.buttondiv);
+        buttonC = (Button) findViewById(R.id.buttonC);
+        buttonEqual = (Button) findViewById(R.id.buttoneql);
+        textvaria = (EditText) findViewById(R.id.edt1);
+
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "1");
+            }
+        });
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "2");
+            }
+        });
+        button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "3");
+            }
+        });
+        button4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "4");
+            }
+        });
+        button5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "5");
+            }
+        });
+        button6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "6");
+            }
+        });
+        button7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "7");
+            }
+        });
+        button8.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "8");
+            }
+        });
+        button9.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "9");
+            }
+        });
+        button0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + "0");
+            }
+        });
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (textvaria == null) {
+                    textvaria.setText("");
+                } else {
+                    mValueOne = Float.parseFloat(textvaria.getText() + "");
+                    operationAddition = true;
+                    textvaria.setText(null);
+                }
+            }
+        });
+        buttonSub.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mValueOne = Float.parseFloat(textvaria.getText() + "");
+                mSubtract = true;
+                textvaria.setText(null);
+            }
+        });
+        buttonMul.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mValueOne = Float.parseFloat(textvaria.getText() + "");
+                operationMultiplication = true;
+                textvaria.setText(null);
+            }
+        });
+        buttonDivision.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mValueOne = Float.parseFloat(textvaria.getText() + "");
+                operationDivision = true;
+                textvaria.setText(null);
+            }
+        });
+        buttonPer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (textvaria == null) {
+                    textvaria.setText("");
+                } else {
+                    mValueOne = Float.parseFloat(textvaria.getText() + "");
+                    operationPercentage = true;
+                    textvaria.setText(null);
+                }
+            }
+        });
+        buttonEqual.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mValueTwo = Float.parseFloat(textvaria.getText() + "");
+                float res;
+                if (operationAddition == true) {
+                    res=mValueOne + mValueTwo;
+                    textvaria.setText(mValueOne + " + " +mValueTwo + " = " + res);
+                    operationAddition = false;
+                }
+                if (mSubtract == true) {
+                    res=mValueOne - mValueTwo;
+                    textvaria.setText(mValueOne + " - " +mValueTwo + " = " + res);
+                    mSubtract = false;
+                }
+                if (operationMultiplication == true) {
+                    res=mValueOne * mValueTwo;
+                    textvaria.setText(mValueOne + " * " +mValueTwo + " = " + res);
+                    operationMultiplication = false;
+                }
+                if (operationDivision == true) {
+                    res=mValueOne / mValueTwo;
+                    textvaria.setText(mValueOne + " / " +mValueTwo + " = " + res);
+                    operationDivision = false;
+                }
+                if (operationPercentage == true) {
+                    res=mValueOne % mValueTwo;
+                    textvaria.setText(mValueOne + " % " +mValueTwo + " = " + res);
+                    operationPercentage = false;
+                }
+            }
+        });
+        buttonC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText("");
+                operationPercentage = false;
+                operationDivision = false;
+                operationAddition = false;
+                operationMultiplication = false;
+            }
+        });
+        button10.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textvaria.setText(textvaria.getText() + ".");
+            }
+        });
+    }
+}
+
+
+xml:
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+
+    <EditText
+        android:id="@+id/edt1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/button1"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edt1"
+        android:layout_alignEnd="@+id/button4"
+        android:layout_alignRight="@+id/button4"
+        android:layout_marginTop="94dp"
+        android:text="1" />
+    <Button
+        android:id="@+id/button2"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/button1"
+        android:layout_toLeftOf="@+id/button3"
+        android:layout_toStartOf="@+id/button3"
+        android:text="2" />
+
+    <Button
+        android:id="@+id/button3"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/button2"
+        android:layout_centerHorizontal="true"
+        android:text="3" />
+
+    <Button
+        android:id="@+id/button4"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button1"
+        android:layout_toLeftOf="@+id/button2"
+        android:text="4" />
+
+    <Button
+        android:id="@+id/button5"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/button2"
+        android:layout_alignLeft="@+id/button2"
+        android:layout_alignBottom="@+id/button4"
+        android:text="5" />
+    <Button
+        android:id="@+id/button6"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button3"
+        android:layout_alignStart="@+id/button3"
+        android:layout_below="@+id/button3"
+        android:text="6" />
+    <Button
+        android:id="@+id/button7"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button4"
+        android:layout_toLeftOf="@+id/button2"
+        android:text="7" />
+
+    <Button
+        android:id="@+id/button8"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button5"
+        android:layout_alignStart="@+id/button5"
+        android:layout_alignLeft="@+id/button5"
+        android:text="8" />
+    <Button
+        android:id="@+id/button9"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button6"
+        android:layout_alignStart="@+id/button6"
+        android:layout_below="@+id/button6"
+        android:text="9" />
+
+    <Button
+        android:id="@+id/buttonadd"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/button3"
+
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/button3"
+        android:text="+" />
+
+    <Button
+        android:id="@+id/buttonsub"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonadd"
+        android:layout_alignStart="@+id/buttonadd"
+        android:layout_alignLeft="@+id/buttonadd"
+
+        android:text="-" />
+
+    <Button
+        android:id="@+id/buttonmul"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonsub"
+        android:layout_alignStart="@+id/buttonsub"
+        android:layout_alignLeft="@+id/buttonsub"
+
+        android:text="*" />
+    <Button
+        android:id="@+id/button10"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button7"
+        android:layout_toLeftOf="@+id/button2"
+        android:text="." />
+    <Button
+        android:id="@+id/button0"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button8"
+        android:layout_alignStart="@+id/button8"
+        android:layout_below="@+id/button8"
+        android:text="0" />
+    <Button
+        android:id="@+id/buttonper"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button9"
+        android:layout_alignStart="@+id/button9"
+        android:layout_below="@+id/button9"
+        android:text="%" />
+
+    <Button
+        android:id="@+id/buttondiv"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonmul"
+        android:layout_alignStart="@+id/buttonmul"
+        android:layout_alignLeft="@+id/buttonmul"
+
+        android:text="/" />
+
+    <Button
+        android:id="@+id/buttoneql"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_below="@+id/button0"
+        android:layout_alignLeft="@+id/button10"
+        android:layout_alignEnd="@+id/buttondiv"
+        android:layout_alignRight="@+id/buttondiv"
+        android:layout_marginStart="7dp"
+        android:layout_marginLeft="103dp"
+        android:layout_marginTop="21dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_toEndOf="@+id/button0"
+        android:text="=" />
+
+    <Button
+        android:id="@+id/buttonC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        style="?android:attr/buttonStyleSmall"
+        android:layout_below="@+id/button10"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="37dp"
+        android:layout_toStartOf="@+id/buttoneql"
+        android:text="AC" />
+</RelativeLayout>
+
+Database:
+Manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.ex5">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Ex5">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Insert"
+            android:exported="true"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".Delete"
+            android:exported="true"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".Update"
+            android:exported="true"
+            android:parentActivityName=".MainActivity">
+        </activity>
+    </application>
+
+</manifest>
+
+
+XML:
+activity_main:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/insert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="insert_row"
+        android:text="Insert"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.254" />
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="delete_row"
+        android:text="Delete"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.37" />
+
+    <Button
+        android:id="@+id/update_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="update_row"
+        android:text="Update"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+delete.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter Name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.118"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.091" />
+
+    <EditText
+        android:id="@+id/name_to_del"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.636"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.078" />
+
+    <Button
+        android:id="@+id/delete_b"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete Record"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.437"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.278" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+insert.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="45dp"
+        android:layout_height="16dp"
+        android:text="Name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.043"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.037" />
+
+    <EditText
+        android:id="@+id/name"
+        android:layout_width="220dp"
+        android:layout_height="44dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.602"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.023" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Address"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.044"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.127" />
+
+    <EditText
+        android:id="@+id/address"
+        android:layout_width="218dp"
+        android:layout_height="42dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.595"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.112" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.043"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.216" />
+
+    <EditText
+        android:id="@+id/phone"
+        android:layout_width="217dp"
+        android:layout_height="51dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.582"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.201" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.042"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.311" />
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="215dp"
+        android:layout_height="47dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.576"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.305" />
+
+    <Button
+        android:id="@+id/insert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Insert"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.408" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+update.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.116"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.064" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter new email"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.128"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.154" />
+
+    <EditText
+        android:id="@+id/name_to_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.786"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.046" />
+
+    <EditText
+        android:id="@+id/updated_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.815"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.139" />
+
+    <Button
+        android:id="@+id/update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update Record"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.253" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+Java:
+dbHandler:
+package com.example.ex5;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class DBHandler extends SQLiteOpenHelper {
+    private static final String DB_NAME = "infodb";
+    private static final int DB_VERSION = 1;
+    private static final String TABLE_NAME = "personalinfo";
+    private static final String ID_COL = "ID";
+    private static final String NAME_COL = "Name";
+    private static final String ADD_COL = "Address";
+    private static final String PHONE_COL = "Phone";
+    private static final String EMAIL_COL = "Email";
+
+    // creating a constructor for our database handler.
+    public DBHandler(Context context) {
+        super(context, DB_NAME, null, DB_VERSION);
+    }
+
+    // below method is for creating a database by running a sqlite query
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String query = "CREATE TABLE " + TABLE_NAME + " ("
+                + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME_COL + " TEXT,"
+                + ADD_COL + " TEXT,"
+                + PHONE_COL + " TEXT,"
+                + EMAIL_COL + " TEXT)";
+
+        // at last we are calling a exec sql
+        // method to execute above sql query
+        db.execSQL(query);
+    }
+
+    // this method is use to add new course to our sqlite database.
+    public void addNewRow(String Name, String Address, String Phone, String Email) {
+
+        // on below line we are creating a variable for
+        // our sqlite database and calling writable method
+        // as we are writing data in our database.
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // on below line we are creating a
+        // variable for content values.
+        ContentValues values = new ContentValues();
+
+        // on below line we are passing all values
+        // along with its key and value pair.
+        values.put(NAME_COL, Name);
+        values.put(ADD_COL, Address);
+        values.put(PHONE_COL, Phone);
+        values.put(EMAIL_COL, Email);
+
+        // after adding all values we are passing
+        // content values to our table.
+        db.insert(TABLE_NAME, null, values);
+
+        // at last we are closing our
+        // database after adding database.
+        db.close();
+    }
+
+    public int deleteRow(String name){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection =NAME_COL + " LIKE ?";
+        String[] selectionArgs= {name};
+        int deletedRows = db.delete(TABLE_NAME, selection, selectionArgs);
+        return deletedRows;
+    }
+
+    public int updateRow(String name,String email){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection =NAME_COL + " LIKE ?";
+        ContentValues v = new ContentValues();
+        v.put("Email",email);
+        String[] selectionArgs= {name};
+        int c=db.update(TABLE_NAME,v,selection,selectionArgs);
+        return c;
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // this method is called to check if the table exists already.
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+    }
+}
+
+Delete.java
+package com.example.ex5;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+public class Delete extends AppCompatActivity{
+
+    private EditText Name;
+    private Button deletebtn;
+    private DBHandler dbHandler;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.delete);
+
+        Name=findViewById(R.id.name_to_del);
+        deletebtn=findViewById(R.id.delete_b);
+        dbHandler = new DBHandler(Delete.this);
+
+        deletebtn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String name = Name.getText().toString();
+                if(name.isEmpty()){
+                    Toast.makeText(Delete.this, "Please enter all the data..", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                int c=dbHandler.deleteRow(name);
+                if(c>0){
+                    Toast.makeText(Delete.this, "Record has been deleted.", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(Delete.this, "No record found.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+}
+
+
+Insert.java
+package com.example.ex5;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+public class Insert extends AppCompatActivity {
+    private EditText Name, Address, Phone, Email;
+    private Button insertbtn;
+    private DBHandler dbHandler;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.insert);
+
+        Name = findViewById(R.id.name);
+        Address = findViewById(R.id.address);
+        Phone = findViewById(R.id.phone);
+        Email = findViewById(R.id.email);
+        insertbtn = findViewById(R.id.insert);
+
+        // creating a new dbhandler class
+        // and passing our context to it.
+        dbHandler = new DBHandler(Insert.this);
+
+        // below line is to add on click listener for our add course button.
+        insertbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // below line is to get data from all edit text fields.
+                String pName = Name.getText().toString();
+                String pAddress = Address.getText().toString();
+                String pPhone = Phone.getText().toString();
+                String pEmail = Email.getText().toString();
+
+                // validating if the text fields are empty or not.
+                if (pName.isEmpty() && pAddress.isEmpty() && pPhone.isEmpty() && pEmail.isEmpty()) {
+                    Toast.makeText(Insert.this, "Please enter all the data..", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // on below line we are calling a method to add new
+                // course to sqlite data and pass all our values to it.
+                dbHandler.addNewRow(pName, pAddress, pPhone, pEmail);
+
+                // after adding the data we are displaying a toast message.
+                Toast.makeText(Insert.this, "Info has been added.", Toast.LENGTH_SHORT).show();
+                Name.setText("");
+                Address.setText("");
+                Phone.setText("");
+                Email.setText("");
+            }
+        });
+
+    }
+
+}
+
+
+Main_activity:
+package com.example.ex5;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity {
+
+    //private Button insertbtn;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        //insertbtn = findViewById(R.id.insert);
+    }
+    public void insert_row(View view){
+        Intent intent = new Intent(this, Insert.class);
+        startActivity(intent);
+    }
+
+    public void delete_row(View view){
+        Intent intent = new Intent(this, Delete.class);
+        startActivity(intent);
+    }
+
+    public void update_row(View view){
+        Intent intent = new Intent(this, Update.class);
+        startActivity(intent);
+    }
+}
+
+
+Update:
+package com.example.ex5;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+public class Update extends AppCompatActivity{
+    private EditText Name;
+    private EditText Email;
+    private Button updatebtn;
+    private DBHandler dbHandler;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.update);
+
+        Name=findViewById(R.id.name_to_update);
+        Email=findViewById(R.id.updated_email);
+        updatebtn=findViewById(R.id.update);
+        dbHandler = new DBHandler(Update.this);
+
+        updatebtn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                String name = Name.getText().toString();
+                String email= Email.getText().toString();
+                if(name.isEmpty() || email.isEmpty()){
+                    Toast.makeText(Update.this, "Please enter all the data..", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                int c=dbHandler.updateRow(name,email);
+                if(c>0){
+                    Toast.makeText(Update.this, "Record has been updated.", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(Update.this, "No record found.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+}
+
+GPS:
+Java:
+package com.example.atry;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+public class MainActivity extends AppCompatActivity {
+    EditText lat,lon;
+    Button click;
+    LocationManager locMg;
+    LocationListener lis;
+    @SuppressLint("MissingPermission")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        lat = (EditText) findViewById(R.id.lat);
+        lon = (EditText) findViewById(R.id.lon);
+        click = (Button) findViewById(R.id.gps);
+        locMg = (LocationManager) getSystemService(LOCATION_SERVICE);
+        lis = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                lat.setText(""+location.getLatitude());
+                lon.setText(""+location.getLongitude());
+            }
+        };
+        ActivityCompat.requestPermissions(this,new
+                String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        click.setOnClickListener(view -> {
+            locMg.requestLocationUpdates("gps", 5000, 0, lis);
+        });
+    }
+}
+
+Xml:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <EditText
+        android:id="@+id/lat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.348" />
+
+    <EditText
+        android:id="@+id/lon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/gps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get Location"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.416"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.677" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.atry">
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Try">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+
+Keyboard:
+Java:
+package com.example.sendsms;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+public class MainActivity extends AppCompatActivity {
+    Button btnQ, btnW, btnE, btnR, btnT, btnY, btnU, btnI, btnO, btnP;
+    Button btnA, btnS, btnD, btnF, btnG, btnH, btnJ, btnK, btnL;
+    Button btnZ, btnX, btnC, btnV, btnB, btnN, btnM;
+    Button btnCaps, btnDel, btnNum, btnSpace, btnPeriod, btnComma, btnEnter;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        TextView input = (TextView) findViewById(R.id.input);
+        btnDel = (Button) findViewById(R.id.btnDel);
+        btnDel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                StringBuffer sb= new StringBuffer(str);
+                int n = sb.length()-1;
+                if(n>0) {
+                    sb.deleteCharAt(sb.length() - 1);
+                    input.setText(sb);
+                }
+                else{
+                    input.setText("");
+                }
+            }
+        });
+        btnQ = (Button) findViewById(R.id.btnQ);
+        btnQ.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnQ.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnW = (Button) findViewById(R.id.btnW);
+        btnW.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnW.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnE = (Button) findViewById(R.id.btnE);
+        btnE.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnE.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnR = (Button) findViewById(R.id.btnR);
+        btnR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnR.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnT = (Button) findViewById(R.id.btnT);
+        btnT.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnT.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnY = (Button) findViewById(R.id.btnY);
+        btnY.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnY.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnU = (Button) findViewById(R.id.btnU);
+        btnU.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnU.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnI = (Button) findViewById(R.id.btnI);
+        btnI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnI.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnO = (Button) findViewById(R.id.btnO);
+        btnO.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnO.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnP = (Button) findViewById(R.id.btnP);
+        btnP.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnP.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnA = (Button) findViewById(R.id.btnA);
+        btnA.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnA.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnS = (Button) findViewById(R.id.btnS);
+        btnS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnS.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnD = (Button) findViewById(R.id.btnD);
+        btnD.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnD.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnF = (Button) findViewById(R.id.btnF);
+        btnF.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnF.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnG = (Button) findViewById(R.id.btnG);
+        btnG.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnG.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnH = (Button) findViewById(R.id.btnH);
+        btnH.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnH.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnJ = (Button) findViewById(R.id.btnJ);
+        btnJ.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnJ.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnK = (Button) findViewById(R.id.btnK);
+        btnK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnK.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnL = (Button) findViewById(R.id.btnL);
+        btnL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnL.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnZ = (Button) findViewById(R.id.btnZ);
+        btnZ.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnZ.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnX = (Button) findViewById(R.id.btnX);
+        btnX.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnX.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnC = (Button) findViewById(R.id.btnC);
+        btnC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnC.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnV = (Button) findViewById(R.id.btnV);
+        btnV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnV.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnB = (Button) findViewById(R.id.btnB);
+        btnB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnB.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnN = (Button) findViewById(R.id.btnN);
+        btnN.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnN.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnM = (Button) findViewById(R.id.btnM);
+        btnM.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                String ch = btnM.getText().toString();
+                str = str+ch;
+                input.setText(str);
+            }
+        });
+        btnComma = (Button) findViewById(R.id.btnComma);
+        btnComma.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                str = str+",";
+                input.setText(str);
+            }
+        });
+        btnPeriod = (Button) findViewById(R.id.btnPeriod);
+        btnPeriod.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                str = str+".";
+                input.setText(str);
+            }
+        });
+        btnSpace = (Button) findViewById(R.id.btnSpace);
+        btnSpace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                str = str+" ";
+                input.setText(str);
+            }
+        });
+        btnEnter = (Button) findViewById(R.id.btnEnter);
+        btnEnter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                str = str+'\n';
+                input.setText(str);
+            }
+        });
+        btnNum = (Button) findViewById(R.id.btnNum);
+        btnNum.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = btnNum.getText().toString();
+                if(str.equals("ABC")){
+                    btnA.setText("A");
+                    btnB.setText("B");
+                    btnC.setText("C");
+                    btnD.setText("D");
+                    btnE.setText("E");
+                    btnF.setText("F");
+                    btnG.setText("G");
+                    btnH.setText("H");
+                    btnI.setText("I");
+                    btnJ.setText("J");
+                    btnK.setText("K");
+                    btnL.setText("L");
+                    btnM.setText("M");
+                    btnN.setText("N");
+                    btnO.setText("O");
+                    btnP.setText("P");
+                    btnQ.setText("Q");
+                    btnR.setText("R");
+                    btnS.setText("S");
+                    btnT.setText("T");
+                    btnU.setText("U");
+                    btnV.setText("V");
+                    btnW.setText("W");
+                    btnX.setText("X");
+                    btnY.setText("Y");
+                    btnZ.setText("Z");
+                    btnCaps.setText("⬆");
+                    btnNum.setText("123");
+                }
+                else{
+                    btnQ.setText("1");
+                    btnW.setText("2");
+                    btnE.setText("3");
+                    btnR.setText("4");
+                    btnT.setText("5");
+                    btnY.setText("6");
+                    btnU.setText("7");
+                    btnI.setText("8");
+                    btnO.setText("9");
+                    btnP.setText("0");
+                    btnA.setText("@");
+                    btnS.setText("#");
+                    btnD.setText("%");
+                    btnF.setText("_");
+                    btnG.setText("&");
+                    btnH.setText("-");
+                    btnJ.setText("+");
+                    btnK.setText("(");
+                    btnL.setText(")");
+                    btnZ.setText("/");
+                    btnX.setText("*");
+                    btnC.setText("\"");
+                    btnV.setText("'");
+                    btnB.setText(":");
+                    btnN.setText(";");
+                    btnM.setText("!");
+                    btnCaps.setText("=");
+                    btnNum.setText("ABC");
+                }
+            }
+        });
+        btnCaps = (Button) findViewById(R.id.btnCaps);
+        btnCaps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String t = btnCaps.getText().toString();
+                if(t.equals("=")){
+                    String str = input.getText().toString();
+                    str = str+"=";
+                    input.setText(str);
+                }
+                else{
+                    String str = btnA.getText().toString();
+                    if(str.charAt(0) >= 65 && str.charAt(0) <=90){
+                        btnA.setText("a");
+                        btnB.setText("b");
+                        btnC.setText("c");
+                        btnD.setText("d");
+                        btnE.setText("e");
+                        btnF.setText("f");
+                        btnG.setText("g");
+                        btnH.setText("h");
+                        btnI.setText("i");
+                        btnJ.setText("j");
+                        btnK.setText("k");
+                        btnL.setText("l");
+                        btnM.setText("m");
+                        btnN.setText("n");
+                        btnO.setText("o");
+                        btnP.setText("p");
+                        btnQ.setText("q");
+                        btnR.setText("r");
+                        btnS.setText("s");
+                        btnT.setText("t");
+                        btnU.setText("u");
+                        btnV.setText("v");
+                        btnW.setText("w");
+                        btnX.setText("x");
+                        btnY.setText("y");
+                        btnZ.setText("z");
+                    }
+                    else if(str.charAt(0) >= 97 && str.charAt(0) <=122){
+                        btnA.setText("A");
+                        btnB.setText("B");
+                        btnC.setText("C");
+                        btnD.setText("D");
+                        btnE.setText("E");
+                        btnF.setText("F");
+                        btnG.setText("G");
+                        btnH.setText("H");
+                        btnI.setText("I");
+                        btnJ.setText("J");
+                        btnK.setText("K");
+                        btnL.setText("L");
+                        btnM.setText("M");
+                        btnN.setText("N");
+                        btnO.setText("O");
+                        btnP.setText("P");
+                        btnQ.setText("Q");
+                        btnR.setText("R");
+                        btnS.setText("S");
+                        btnT.setText("T");
+                        btnU.setText("U");
+                        btnV.setText("V");
+                        btnW.setText("W");
+                        btnX.setText("X");
+                        btnY.setText("Y");
+                        btnZ.setText("Z");
+                    }
+                }
+            }
+        });
+    }
+}
+
+
+xml:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <TextView
+        android:id="@+id/input"
+        android:layout_width="375dp"
+        android:layout_height="wrap_content"
+        android:lines="20"
+        android:padding="10dp"
+        android:paddingRight="70dp"
+        android:scrollbars="vertical"
+        android:scrollHorizontally="false"
+        android:text=""
+        android:textAlignment="textEnd"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+    <GridLayout
+        android:id="@+id/lytGrid3"
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:background="#C6C6C6"
+        android:paddingLeft="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+        <Button
+            android:id="@+id/btnNum"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="0"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:text="123"
+            android:textColor="@android:color/black"
+            android:textSize="25sp"
+            app:backgroundTint="@color/material_on_primary_emphasis_medium" />
+        <Button
+            android:id="@+id/btnComma"
+            android:layout_width="35dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="1"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:text=","
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnSpace"
+            android:layout_width="180dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="2"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:text=" "
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnPeriod"
+            android:layout_width="35dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="3"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:text="."
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnEnter"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="4"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:text="↩"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="25sp"
+            app:backgroundTint="@color/material_on_primary_emphasis_medium" />
+    </GridLayout>
+    <GridLayout
+        android:id="@+id/lytGrid"
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:background="#C6C6C6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingLeft="25dp"
+        app:layout_constraintVertical_bias="0.671">
+
+        <Button
+            android:id="@+id/btnQ"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="Q"
+            android:text="Q"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnW"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="W"
+            android:text="W"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnE"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="E"
+            android:text="E"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnR"
+            android:textAllCaps="false"
+            android:layout_width="35dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="R"
+            android:text="R"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnT"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="T"
+            android:text="T"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnY"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="Y"
+            android:text="Y"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnU"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="U"
+            android:text="U"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnI"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="I"
+            android:text="I"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnO"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="O"
+            android:text="O"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnP"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="P"
+            android:text="P"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+    </GridLayout>
+    <GridLayout
+        android:id="@+id/lytGrid1"
+        android:layout_width="match_parent"
+        android:layout_height="74dp"
+        android:background="#C6C6C6"
+        android:paddingLeft="45dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.783">
+        <Button
+            android:id="@+id/btnA"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="0"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="A"
+            android:text="A"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnS"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="1"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="S"
+            android:text="S"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnD"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="2"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="D"
+            android:text="D"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnF"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="3"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="F"
+            android:text="F"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnG"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="4"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="G"
+            android:text="G"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnH"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="5"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="H"
+            android:text="H"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnJ"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="6"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="J"
+            android:text="J"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnK"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="7"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="K"
+            android:text="K"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnL"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="8"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="L"
+            android:text="L"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+    </GridLayout>
+    <GridLayout
+        android:id="@+id/lytGrid2"
+        android:layout_width="match_parent"
+        android:layout_height="76dp"
+        android:background="#C6C6C6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.887"
+        android:paddingLeft="15dp">
+        <Button
+            android:id="@+id/btnCaps"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="0"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="I"
+            android:text="⬆"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="25sp"
+            app:backgroundTint="@color/material_on_primary_emphasis_medium" />
+        <Button
+            android:id="@+id/btnZ"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="1"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="Z"
+            android:text="Z"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnX"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="2"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="X"
+            android:text="X"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnC"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="3"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="C"
+            android:text="C"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnV"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="4"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="V"
+            android:text="V"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnB"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="5"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="B"
+            android:text="B"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnN"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="6"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="N"
+            android:text="N"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnM"
+            android:textAllCaps="false"
+            android:layout_width="30dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="7"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="M"
+            android:text="M"
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            app:backgroundTint="@color/white" />
+        <Button
+            android:id="@+id/btnDel"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:layout_row="1"
+            android:layout_column="8"
+            android:layout_margin="2dp"
+            android:padding="0dp"
+            android:tag="X"
+            android:text="✖"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="25sp"
+            app:backgroundTint="@color/material_on_primary_emphasis_medium" />
+    </GridLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.sendsms">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Sendsms">
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+SD Card:
+Java:
+package com.example.atry;
+
+import android.os.Bundle;
+import android.os.Environment;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class MainActivity extends AppCompatActivity {
+    Button read,write;
+    EditText ReadBox;
+    EditText WriteBox;
+    String fileName,filePath,fileContents;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        read =findViewById(R.id.Read);
+        write = findViewById(R.id.Write);
+        ReadBox = findViewById(R.id.ReadBox);
+        WriteBox = findViewById(R.id.WriteBox);
+        fileName ="myFile.txt";
+        filePath = "FileDir";
+        if(!isExternalStorageAvailableRW()){
+            write.setEnabled(false);
+        }
+        write.setOnClickListener(view -> {
+            ReadBox.setText("");
+            fileContents = WriteBox.getText().toString().trim();
+            if(!fileContents.equals("")) {
+                //Get external files dir
+                File myExtFile = new File(getExternalFilesDir(filePath), fileName);
+                try {
+                    FileOutputStream fos = new FileOutputStream(myExtFile);
+                    fos.write(fileContents.getBytes());
+                }
+                catch (FileNotFoundException e){
+                    e.printStackTrace();
+                }
+                catch (IOException e){
+                    e.printStackTrace();
+                }
+                WriteBox.setText("");
+                Toast.makeText(MainActivity.this, "TextFile written on SD Card",Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Toast.makeText(MainActivity.this, "Input Field Empty",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        read.setOnClickListener(view -> {
+            FileReader fr;
+            File myExtFile = new File(getExternalFilesDir(filePath),fileName);
+            StringBuilder sb = new StringBuilder();
+            String contents = "";
+            try{
+                fr = new FileReader(myExtFile);
+                BufferedReader br = new BufferedReader(fr);
+                String line = br.readLine();
+                while(line!=null){
+                    contents += line;
+                    line = br.readLine();
+                }
+                ReadBox.setText(contents);
+            }
+            catch (FileNotFoundException e){
+                e.printStackTrace();
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private boolean isExternalStorageAvailableRW() {
+        String ExternalStorageState = Environment.getExternalStorageState();
+        if(ExternalStorageState.equals(Environment.MEDIA_MOUNTED)){
+            return true;
+        }
+        return false;
+    }
+}
+
+xml:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/Read"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Read"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.148"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.531" />
+
+    <Button
+        android:id="@+id/Write"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Write"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.643"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.531" />
+
+    <EditText
+        android:id="@+id/ReadBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.383"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.174" />
+
+    <EditText
+        android:id="@+id/WriteBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.383"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.31" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+manifest:
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+Shapes and Animation:
+manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.ex4a">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Cars">
+        <activity android:name="com.example.ex4a.ShapesActivity"
+            android:parentActivityName="com.example.ex4a.MainActivity">
+            <!-- The meta-data tag is required if you support API level 15 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.ex4a.MainActivity" />
+        </activity>
+        <activity android:exported="true" android:name="com.example.ex4a.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+Java:
+Main.java:
+package com.example.ex4a;
+//import com.example.R;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.ImageView;
+
+public class MainActivity extends AppCompatActivity{
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Button bt_zoom=findViewById(R.id.bt_zoom);
+        //Button bt_fade=findViewById(R.id.bt_fade);
+        Button bt_rotate=findViewById(R.id.bt_rotate);
+        Button bt_down=findViewById(R.id.bt_down);
+        Button bt_up=findViewById(R.id.bt_up);
+        Button bt_forward=findViewById(R.id.bt_forward);
+        Button bt_backward=findViewById(R.id.bt_backward);
+        final ImageView iv_animate=findViewById(R.id.iv_animate);
+
+        bt_zoom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                iv_animate.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.zoom_in));
+            }
+        });
+        /*
+        bt_fade.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                iv_animate.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in));
+            }
+        });*/
+        bt_rotate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                iv_animate.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_in));
+            }
+        });
+        bt_up.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_animate.animate().translationYBy(-300f).setDuration(600);
+            }
+        });
+        bt_down.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_animate.animate().translationYBy(300f).setDuration(600);
+            }
+        });
+        bt_forward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_animate.animate().translationXBy(300f).setDuration(600);
+            }
+        });
+        bt_backward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iv_animate.animate().translationXBy(-300f).setDuration(600);
+            }
+        });
+
+    }
+    public void nextPage(View view) {
+        Intent intent = new Intent(this, ShapesActivity.class);
+        startActivity(intent);
+
+    }
+
+}
+
+Shapes.java:
+package com.example.ex4a;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.widget.ImageView;
+
+public class ShapesActivity extends AppCompatActivity {
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_shapes);
+
+        Intent intent = getIntent();
+
+        Bitmap bg = Bitmap.createBitmap(720, 1280, Bitmap.Config.ARGB_8888);
+        ImageView i = (ImageView) findViewById(R.id.imageView);
+
+        i.setBackgroundDrawable(new BitmapDrawable(bg));
+        Canvas canvas = new Canvas(bg);
+        Paint paint = new Paint();
+        paint.setColor(Color.CYAN);
+        paint.setTextSize(50);
+
+        //To draw a Rectangle
+        canvas.drawText("Rectangle", 420, 150, paint);
+        canvas.drawRect(400, 200, 650, 700, paint);
+
+        //To draw a Circle
+        canvas.drawText("Circle", 120, 150, paint);
+        canvas.drawCircle(200, 350, 150, paint);
+
+        //To draw an arc
+        canvas.drawText("Arc", 120, 800, paint);
+        canvas.drawArc(50, 850, 350, 1150, 135, 120, true, paint);
+
+        //To draw a Line
+        canvas.drawText("Line", 480, 800, paint);
+        canvas.drawLine(520, 850, 520, 1150, paint);
+    }
+}
+
+XML:
+in anim
+rotate.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <rotate
+        android:fromDegrees="0"
+        android:toDegrees="360"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:duration="1000" />
+</set>
+
+zoom.xml:
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <scale xmlns:android="http://schemas.android.com/apk/res/android"
+        android:fromXScale="0.5"
+        android:fromYScale="0.5"
+        android:toXScale="1.0"
+        android:toYScale="1.0"
+        android:duration="3000"
+        android:pivotX="50%"
+        android:pivotY="50%"/>
+</set>
+
+in drawable put picture
+
+in layout:
+main.xml:
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <Button
+        android:id="@+id/bt_rotate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="278dp"
+        android:layout_marginLeft="278dp"
+        android:layout_marginTop="195dp"
+        android:text="Rotate" />
+
+    <Button
+        android:id="@+id/bt_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="127dp"
+        android:text="Down" />
+
+    <Button
+        android:id="@+id/bt_zoom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="46dp"
+        android:layout_marginLeft="46dp"
+        android:layout_marginTop="200dp"
+        android:text="Zoom" />
+
+    <Button
+        android:id="@+id/bt_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_zoom"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-238dp"
+        android:layout_marginEnd="163dp"
+        android:layout_marginRight="163dp"
+        android:text="Up" />
+
+    <Button
+        android:id="@+id/bt_forward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_up"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="55dp"
+        android:layout_marginRight="55dp"
+        android:text="Forward" />
+
+    <Button
+        android:id="@+id/bt_backward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bt_up"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="10dp"
+        android:text="Backward" />
+
+    <ImageView
+        android:id="@+id/iv_animate"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@+id/bt_backward"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="214dp"
+        android:layout_marginRight="30dp"
+        android:background="@drawable/car" />
+    <Button
+        android:id="@+id/bt_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="69dp"
+        android:layout_marginRight="69dp"
+        android:layout_marginBottom="60dp"
+        android:onClick="nextPage"
+        android:text="Next" />
+
+</RelativeLayout>
+
+shapes.xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/imageView"/>
+</RelativeLayout>
+
+SMS:
+Manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.atry">
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Try">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+
+
+xml:
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="128dp"
+        android:layout_marginTop="444dp"
+        android:backgroundTint="#FF5722"
+        android:text="Send SMS"
+        app:icon="@android:drawable/ic_menu_send"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/contact_number_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="264dp"
+        android:text="Contact Number"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <EditText
+        android:id="@+id/contact_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="244dp"
+        android:ems="10"
+        android:hint="Number"
+        android:inputType="number|textPersonName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <EditText
+        android:id="@+id/user_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="308dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="Message"
+        android:inputType="textMultiLine"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+Java:
+package com.example.atry;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.telephony.SmsManager;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import static android.Manifest.permission.READ_PHONE_STATE;
+import static android.Manifest.permission.READ_SMS;
+import static android.Manifest.permission.RECEIVE_SMS;
+import static android.Manifest.permission.SEND_SMS;
+public class MainActivity extends AppCompatActivity {
+    EditText contact_no,user_message;
+    Button send;
+    TextView msgs;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ActivityCompat.requestPermissions(MainActivity.this,new
+                String[]{READ_SMS,RECEIVE_SMS,SEND_SMS,READ_PHONE_STATE},1);
+        contact_no = findViewById(R.id.contact_number);
+        user_message = findViewById(R.id.user_message);
+        send = findViewById(R.id.sendButton);
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendMsg(contact_no.getText().toString(), user_message.getText().toString());
+            }
+        });
+    }
+    void sendMsg(String number, String message)
+    {
+        SmsManager manager = SmsManager.getDefault();
+        manager.sendTextMessage(number, null, message, null, null);
+    }
+}
+
+Thread:
+Java:
+package com.example.atry;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+public class MainActivity extends AppCompatActivity {
+    private TextView banner, coord;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        banner = (TextView) findViewById(R.id.banner);
+        coord = (TextView) findViewById(R.id.coord);
+        
+        new Thread(new Runnable() {
+            public void run() {
+                int i = 0;
+                while (i++ < 100) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            banner.animate().translationXBy(20f);
+                            coord.animate().translationXBy(20f);
+                            int[] location = new int[2];
+                            banner.getLocationOnScreen(location);
+                            coord.setText("Location: (" + location[0] + ", " + location[1] + ")");
+                        }
+                    });
+                }
+            }
+        }).start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int i=0;
+                while(i++ < 100)
+                {
+                    try {
+                        Thread.sleep(100);
+                    }
+                    catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            banner.animate().rotationXBy(45);
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+}
+
+xml:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <TextView
+        android:id="@+id/banner"
+        android:layout_width="133dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="204dp"
+        android:background="#FFEB3B"
+        android:backgroundTint="#FFC107"
+        android:text="Sample Text"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/coord"
+        android:layout_width="133dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="260dp"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+Web Page:
+XML:
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+        <Button
+            android:id="@+id/loadWebPage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:background="#444"
+            android:text="Load Web Page"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/loadFromStaticHtml"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:background="#444"
+            android:text="Load Static HTML"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+    <WebView
+        android:id="@+id/simpleWebView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="20dp"
+        android:scrollbars="none" />
+</LinearLayout>
+
+
+
+Manifest:
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.sendsms">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Sendsms">
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+
+
+
+java:
+package com.example.sendsms;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    WebView simpleWebView;
+    Button loadWebPage, loadFromStaticHtml;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        // initiate buttons and a web view
+        loadFromStaticHtml = (Button) findViewById(R.id.loadFromStaticHtml);
+        loadFromStaticHtml.setOnClickListener(this);
+        loadWebPage = (Button) findViewById(R.id.loadWebPage);
+        loadWebPage.setOnClickListener(this);
+        simpleWebView = (WebView) findViewById(R.id.simpleWebView);
+    }
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.loadFromStaticHtml:
+                // define static html text
+                String customHtml = "<html><body><h1>Hello</h1>" + "<h3>Welcome to the <em>restaurant</em></h3>" + "<p><mark>Buy 1 get 1 free</mark></p>" +
+                "<p>List of beverages</p>" + "<p><ol><li><b>Tea</b></li><li><u>Coffee</u></li><li>Milk</li></ol></p>" + "<p><i>Have a good day</i></p>" + "<p><sup>Come</sup> back <sub>again</sub></p>" + "</body></html>";
+                simpleWebView.loadData(customHtml, "text/html", "UTF-8"); // load html string
+                break;
+            case R.id.loadWebPage:
+                //simpleWebView.setWebViewClient(new MyWebViewClient());
+                String url = "https://www.google.com";
+                simpleWebView.getSettings().setJavaScriptEnabled(true);
+                simpleWebView.loadUrl(url); // load a web page in a web view
+                break;
+        }
+    }
+    /*
+    private class MyWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(url);
+            return true;
+        }
+    }*/
+}
+
