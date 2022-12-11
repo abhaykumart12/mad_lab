@@ -1,0 +1,374 @@
+https://cutt.ly/r0ph1SE
+
+Graphical primitives:
+
+Java: (shapes)
+
+Bitmap bg = Bitmap.createBitmap(720, 1280, Bitmap.Config.ARGB_8888);
+ImageView i = (ImageView) findViewById(R.id.imageView);
+i.setBackgroundDrawable(new BitmapDrawable(bg));
+Canvas canvas = new Canvas(bg);
+Paint paint = new Paint();
+paint.setColor(Color.CYAN);
+canvas.drawRect(400, 200, 650, 700, paint);
+
+Animation:
+final ImageView iv_animate=findViewById(R.id.iv_animate);
+iv_animate.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(),R.anim.zoom_in));
+iv_animate.animate().translationYBy(-300f).setDuration(600);
+
+zoom_in.xml:
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+<scale xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:fromXScale="0.5" 
+	android:fromYScale="0.5" 
+	android:toXScale="1.0" 
+	android:toYScale="1.0" 
+	android:duration="3000" 
+	android:pivotX="50%" 
+	android:pivotY="50%"/>
+</set>
+
+rotate.xml:
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+<rotate 
+	android:fromDegrees="0" 
+	android:toDegrees="360" 
+	android:pivotX="50%" 
+	android:pivotY="50%" 
+	android:duration="1000"/>
+</set>
+
+fade.xml
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+<alpha 
+	android:fromAlpha="0.0" 
+	android:toAlpha="1.0" 
+	android:duration="2000"/>
+</set>
+
+Database:
+
+DBhelper.java:
+
+public class DBHandler extends SQLiteOpenHelper {
+    private static final String DB_NAME = "infodb";
+    private static final int DB_VERSION = 1;
+    private static final String TABLE_NAME = "personalinfo";
+    private static final String ID_COL = "ID";
+    private static final String NAME_COL = "Name";
+    private static final String ADD_COL = "Address";
+    private static final String PHONE_COL = "Phone";
+    private static final String EMAIL_COL = "Email";
+
+    // creating a constructor for our database handler.
+    public DBHandler(Context context) {
+        super(context, DB_NAME, null, DB_VERSION);
+    }
+
+    // below method is for creating a database by running a sqlite query
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String query = "CREATE TABLE " + TABLE_NAME + " ("
+                + ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + NAME_COL + " TEXT,"
+                + ADD_COL + " TEXT,"
+                + PHONE_COL + " TEXT,"
+                + EMAIL_COL + " TEXT)";
+
+        // at last we are calling a exec sql
+        // method to execute above sql query
+        db.execSQL(query);
+    }
+
+    // this method is use to add new course to our sqlite database.
+    public void addNewRow(String Name, String Address, String Phone, String Email) {
+
+        // on below line we are creating a variable for
+        // our sqlite database and calling writable method
+        // as we are writing data in our database.
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // on below line we are creating a
+        // variable for content values.
+        ContentValues values = new ContentValues();
+
+        // on below line we are passing all values
+        // along with its key and value pair.
+        values.put(NAME_COL, Name);
+        values.put(ADD_COL, Address);
+        values.put(PHONE_COL, Phone);
+        values.put(EMAIL_COL, Email);
+
+        // after adding all values we are passing
+        // content values to our table.
+        db.insert(TABLE_NAME, null, values);
+
+        // at last we are closing our
+        // database after adding database.
+        db.close();
+    }
+
+    public int deleteRow(String name){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection =NAME_COL + " LIKE ?";
+        String[] selectionArgs= {name};
+        int deletedRows = db.delete(TABLE_NAME, selection, selectionArgs);
+        return deletedRows;
+    }
+
+    public int updateRow(String name,String email){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection =NAME_COL + " LIKE ?";
+        ContentValues v = new ContentValues();
+        v.put("Email",email);
+        String[] selectionArgs= {name};
+        int c=db.update(TABLE_NAME,v,selection,selectionArgs);
+        return c;
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // this method is called to check if the table exists already.
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+    }
+}
+
+Insert.java:
+dbHandler = new DBHandler(Insert.this);
+dbHandler.addNewRow(pName, pAddress, pPhone, pEmail);
+
+display:
+Cursor cursorCourses = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+do {
+                // on below line we are adding the data from cursor to our array list.
+                courseModalArrayList.add(new CourseModal(cursorCourses.getString(1),
+                                             cursorCourses.getString(4),
+                                             cursorCourses.getString(2),
+                                             cursorCourses.getString(3)));
+            } while (cursorCourses.moveToNext());
+
+
+
+Multithreading:
+
+new Thread(new Runnable() {
+	public void run() {
+		int i = 0;
+		while (i++ < 100) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					banner.animate().translationXBy(20f);
+					coord.animate().translationXBy(20f);
+					int[] location = new int[2];
+					banner.getLocationOnScreen(location);
+					coord.setText("Location: (" + location[0] + ", " + location[1] + ")");
+				}
+			});
+		}
+	}
+}).start();
+
+new Thread(new Runnable() {
+	@Override
+	public void run() {
+		int i=0;
+		while(i++ < 100){
+			try {
+				Thread.sleep(100);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					banner.animate().rotationXBy(45);
+				}
+			});
+		}
+	}
+}).start();
+
+
+GPS:
+Android Manifest:
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+Java:
+@SuppressLint("MissingPermission") //outside onCreate
+
+locMg = (LocationManager) getSystemService(LOCATION_SERVICE);
+lis = new LocationListener() {
+	@Override
+ 	public void onLocationChanged(@NonNull Location location) {
+ 		lat.setText(""+location.getLatitude());
+ 		lon.setText(""+location.getLongitude());
+ 	}
+};
+
+ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+click.setOnClickListener(view -> {
+	locMg.requestLocationUpdates("gps", 5000, 0, lis);
+});
+
+SD Card:
+Android MAnifest:
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+Java:
+public class MainActivity extends AppCompatActivity {
+	Button read,write;
+	TextView ReadBox;
+ 	EditText WriteBox;
+ 	String fileName,filePath,fileContents;
+ 	@Override
+ 	protected void onCreate(Bundle savedInstanceState) {
+ 		super.onCreate(savedInstanceState);
+ 		setContentView(R.layout.activity_main);
+ 		read =findViewById(R.id.Read);
+ 		write = findViewById(R.id.Write);
+ 		ReadBox = findViewById(R.id.ReadBox);
+ 		WriteBox = findViewById(R.id.WriteBox);
+ 		fileName ="myFile.txt";
+ 		filePath = "FileDir";
+ 		if(!isExternalStorageAvailableRW()){
+ 			write.setEnabled(false);
+ 		}
+ 		write.setOnClickListener(view -> {
+ 			ReadBox.setText("");
+ 			fileContents = WriteBox.getText().toString().trim();
+ 			if(!fileContents.equals("")) {
+ 				//Get external files dir
+ 				File myExtFile = new File(getExternalFilesDir(filePath), fileName);
+ 				try {
+ 					FileOutputStream fos = new FileOutputStream(myExtFile);
+ 					fos.write(fileContents.getBytes());
+				}
+ 				catch (FileNotFoundException e){
+ 					e.printStackTrace();
+ 				}
+ 				catch (IOException e){
+ 					e.printStackTrace();
+ 				}
+ 				WriteBox.setText("");
+ 				Toast.makeText(MainActivity.this, "TextFile written on SD Card",Toast.LENGTH_SHORT).show();
+ 			}
+ 			else{
+ 				Toast.makeText(MainActivity.this, "Input Field Empty",
+				Toast.LENGTH_SHORT).show();
+	 		}
+	 	});
+
+ 		read.setOnClickListener(view -> {
+ 			FileReader fr;
+ 			File myExtFile = new File(getExternalFilesDir(filePath),fileName);
+			StringBuilder sb = new StringBuilder();
+	 		String contents = "";
+ 			try{
+ 				fr = new FileReader(myExtFile);
+ 				BufferedReader br = new BufferedReader(fr);
+ 				String line = br.readLine();
+ 				while(line!=null){
+ 					contents += line;
+ 					line = br.readLine();
+ 				}
+ 				ReadBox.setText(contents);
+ 			}
+ 			catch (FileNotFoundException e){
+ 				e.printStackTrace();
+ 			}
+ 			catch (IOException e){
+ 				e.printStackTrace();
+ 			}
+ 		});
+ 	}
+
+	private boolean isExternalStorageAvailableRW() {
+ 		String ExternalStorageState = Environment.getExternalStorageState();
+ 		if(ExternalStorageState.equals(Environment.MEDIA_MOUNTED)){
+			return true;
+		}
+		return false;
+	}
+}
+
+SMS:
+Android Manifest:
+<uses-permission android:name="android.permission.READ_SMS"/>
+<uses-permission android:name="android.permission.RECEIVE_SMS"/>
+<uses-permission android:name="android.permission.SEND_SMS"/>
+<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
+Java:
+SmsManager manager = SmsManager.getDefault();
+manager.sendTextMessage(number, null, message, null, null);
+
+Alarm Clock:
+MediaPlayer m=MediaPlayer.create(this,R.raw.music);
+new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (!enableCounter) {
+                    return;
+                }
+                if (decrementCounter(hours, minutes, seconds) == 1) {
+                    message.setText("Counter has finished counting!");
+                    enableCounter = false;
+                    runcounter=true;
+                    m.start();
+                }
+            }
+        }, 0, 1000);
+
+if (hours == 0 && minutes == 0 && seconds == 0) {
+            return 1;
+        }
+
+        if (seconds == 0) {
+            seconds = 59;
+            if (minutes == 0) {
+                minutes = 59;
+                hours -= 1;
+            } else {
+                minutes -= 1;
+            }
+        } else {
+            seconds -= 1;
+        }
+
+
+Web Page:
+Android Manifest:
+<uses-permission android:name="android.permission.INTERNET" />
+
+Java:
+simpleWebView = (WebView) findViewById(R.id.simpleWebView);
+//static
+String customHtml = "<html><body><h1>Hello</h1>" + "<h3>Welcome to the <em>restaurant</em></h3>" + "<p><mark>Buy 1 get1 free</mark></p>" +
+ "<p>List of beverages</p>" + "<p><ol><li><b>Tea</b></li><li><u>Coffee</u></li><li>Milk</li></ol></p>" +"<p><i>Have a good day</i></p>" + "<p><sup>Come</sup> back<sub>again</sub></p>" + "</body></html>";
+
+simpleWebView.loadData(customHtml, "text/html", "UTF-8");
+
+//url
+simpleWebView.setWebViewClient(new MyWebViewClient());
+String url = "https://www.google.com/intl/en_in/gmail/about/";
+simpleWebView.getSettings().setJavaScriptEnabled(true);
+simpleWebView.loadUrl(url);
+
+private class MyWebViewClient extends WebViewClient {
+ 	@Override
+ 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
+ 		view.loadUrl(url);
+ 		return true;
+ 	}
+}
